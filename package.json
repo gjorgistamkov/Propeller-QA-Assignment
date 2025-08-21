@@ -1,0 +1,23 @@
+{
+  "name": "propeller-qa-assignment",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "jest": "^30.0.5"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "cross-fetch": "^4.1.0",
+    "cypress": "^14.5.4"
+  },
+  "description": ""
+}
