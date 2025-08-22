@@ -1,100 +1,88 @@
+import { validateUser, validateUsers, validateAlbum, validateAlbums } from '../../../../support/helpers';
+
 describe('User Mutations', () => {
 
     it('Create a new user', () => {
-      const query = `
-      mutation {
-        createUser(input: { name: "Test User", email: "testuser@example.com", username: "testuser" }) {
-          id
-          name
-          email
-          username
-        }
+        const mutation = `
+    mutation {
+      createUser(input: { name: "Test User", email: "testuser@example.com", username: "testuser" }) {
+        id
+        name
+        email
+        username
       }
-    `;
+    }
+  `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
+        cy.graphql(mutation).then((data) => {
+            const user = data.createUser;
 
-        const user = response.body.data.createUser;
-        expect(user).to.have.property('id');
-        expect(user).to.have.property('name', 'Test User');
-        expect(user).to.have.property('email', 'testuser@example.com');
-        expect(user).to.have.property('username', 'testuser');
+            // Use singular validateUser since this is a single user object
+            validateUser(user);
 
-        expect(user.id).to.be.a('string').and.to.not.be.empty;
-        expect(user.name).to.be.a('string').and.to.not.be.empty;
-        expect(user.email).to.be.a('string').and.to.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-        expect(user.username).to.be.a('string').and.to.not.be.empty;
+            // Additional assertions checking that the returned data matches input
+            expect(user.name, 'Name matches input').to.equal('Test User');
+            expect(user.email, 'Email matches input').to.equal('testuser@example.com');
+            expect(user.username, 'Username matches input').to.equal('testuser');
 
-
-        //console.log('Created user:', user);
-        cy.log('Created user:', user);
-      });
+            cy.log('Created user:', JSON.stringify(user));
+        });
     });
 
+
+
     it('Update an existing user', () => {
-      const query = `
-      mutation {
-        updateUser(id: 1, input: { name: "Updated User", email: "updated@example.com", username: "UPdaUser" }) {
-          id
-          name
-          email
-          username
-        }
+        const mutation = `
+    mutation {
+      updateUser(id: 1, input: { name: "Updated User", email: "updated@example.com", username: "UPdaUser" }) {
+        id
+        name
+        email
+        username
       }
-    `;
+    }
+  `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
+        cy.graphql(mutation).then((data) => {
+            const user = data.updateUser;
 
-        const user = response.body.data.updateUser;
-        expect(user).to.have.property('id', '1');
-        expect(user).to.have.property('name', 'Updated User');
-        expect(user).to.have.property('email', 'updated@example.com');
-        expect(user).to.have.property('username', 'UPdaUser');
+            // Validate user object structure and types
+            expect(user, 'Updated user object').to.be.an('object').and.not.be.null;
 
-        expect(user.id).to.be.a('string').and.to.not.be.empty;
-        expect(user.name).to.be.a('string').and.to.not.be.empty;
-        expect(user.email).to.be.a('string').and.to.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-        expect(user.username).to.be.a('string').and.to.not.be.empty;
+            // Validate user ID and other updated fields
+            expect(user).to.have.property('id').that.is.a('string').and.equals('1');
 
-        //console.log('Updated user:', user);
-        cy.log('Updated user:', user);
-      });
+            // Use helper to validate user fields thoroughly
+            validateUser(user);
+
+            // Additional specific assertions comparing to update input
+            expect(user.name, 'Name matches update input').to.equal('Updated User');
+            expect(user.email, 'Email matches update input').to.equal('updated@example.com');
+            expect(user.username, 'Username matches update input').to.equal('UPdaUser');
+
+            // Optionally, check trimmed and username pattern separately if needed
+            expect(user.username.trim(), 'Trimmed username').to.have.length.greaterThan(0);
+            expect(user.username, 'Username pattern').to.match(/^[a-zA-Z0-9_]{3,}$/);
+
+            cy.log('Updated user:', JSON.stringify(user));
+        });
     });
 
 
     it('Delete a user', () => {
-      const query = `
-      mutation {
-        deleteUser(id: 1)
-      }
-    `;
+        const mutation = `
+    mutation {
+      deleteUser(id: 1)
+    }
+  `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body.data.deleteUser).to.eq(true);
+        cy.graphql(mutation).then((data) => {
+            // The deleteUser field should be true indicating simulated success
+            expect(data, 'Response data').to.have.property('deleteUser', true);
 
-
-        //console.log('User deleted successfully');
-        cy.log('User deleted successfully');
-      });
+            cy.log('User delete mutation returned true (API simulated deletion)');
+        });
     });
 
 
-  });
+});

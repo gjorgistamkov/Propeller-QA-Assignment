@@ -1,218 +1,175 @@
+import { validateAlbum, validateAlbums, validateUser, validateUsers } from "../../../../support/helpers";
+
 describe('Albums Queries', () => {
 
+
     it('List albums', () => {
-      const query = `
-        query {
-          albums {
-            data {
-              id
-              title
-              user {
-                id  
-                name
-                username
-              }
-            } 
-          }
-        }
-      `;
-
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-
-        const albums = response.body.data.albums.data;
-        expect(albums).to.be.an('array');
-        expect(albums.length).to.be.greaterThan(0);
-
-        const album = albums[0];
-        expect(album).to.have.property('id');
-        expect(album).to.have.property('title');
-        expect(album.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.title).to.be.a('string').and.to.not.be.empty;
-
-        expect(album.user).to.have.property('id');
-        expect(album.user).to.have.property('name');
-        expect(album.user).to.have.property('username');
-
-        expect(album.user.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.user.name).to.be.a('string').and.to.not.be.empty;
-        expect(album.user.username).to.be.a('string').and.to.not.be.empty;
-
-        //console.log('Fetched albums:', response.body.data.albums.data);
-        cy.log('Fetched albums:', response.body.data.albums.data);
-      });
-    });
-
-
-    it('Return albums for a specific user', () => {
-      const query = `
-        query {
-          user(id: 1) {
-            albums {
-              data {
-                id
-                title
-              }
-            }
-          }
-        }
-      `;
-
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-
-        const albums = response.body.data.user.albums.data;
-        expect(albums.length).to.be.greaterThan(0);
-
-        const album = albums[0];
-        expect(album).to.have.property('id');
-        expect(album).to.have.property('title');
-
-        expect(album.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.title).to.be.a('string').and.to.not.be.empty;
-
-
-        //console.log('Albums for user:', response.body.data.user.albums.data);
-        cy.log('Albums for user:', response.body.data.user.albums.data);
-
-      });
-    });
-
-
-    it('Album by valid ID', () => {
-      const query = `
+        const query = `
       query {
-        album(id: 1) {
-          id
-          title
-          user {
+        albums {
+          data {
             id
-            name
-            username
+            title
+            user {
+              id
+              name
+              username
+            }
           }
         }
       }
     `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
+        cy.graphql(query).then((data) => {
+            const albums = data.albums.data;
 
+            // Assert albums array is present and not empty
+            expect(albums, 'Albums array').to.be.an('array').and.have.length.greaterThan(0);
 
-        const album = response.body.data.album;
-        expect(album).to.have.property('id', '1');
-        expect(album).to.have.property('title');
+            // Use your existing helper to validate the albums container and all contained albums
+            validateAlbums(data.albums);
 
-        expect(album.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.title).to.be.a('string').and.to.not.be.empty;
+            // Additionally, validate the first album’s user fields explicitly
+            const album = albums[0];
+            expect(album.user).to.have.property('username').that.is.a('string').and.not.empty;
 
-        expect(album.user).to.have.property('id');
-        expect(album.user).to.have.property('name');
-
-        expect(album.user.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.user.name).to.be.a('string').and.to.not.be.empty;
-        expect(album.user.username).to.be.a('string').and.to.not.be.empty;
-
-        //console.log('Album:', album);
-        cy.log('Album:', album);
-
-      });
+            cy.log('Fetched albums:', albums);
+        });
     });
 
-    it('Album by invalid ID', () => {
-      const query = `
-        query {
-          album(id: 999999) {
+
+
+    it('Return albums for a specific user', () => {
+        const query = `
+    query {
+      user(id: 1) {
+        albums {
+          data {
             id
-            title 
-            user {
-              id
-              name
-            }
+            title
           }
-        }`
+        }
+      }
+    }
+  `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
+        cy.graphql(query).then((data) => {
+            const albums = data.user.albums.data;
 
-        const album = response.body.data.album;
+            expect(albums, 'Albums array').to.be.an('array').and.have.length.greaterThan(0);
 
-        expect(album).to.be.an('object');
-        expect(album.id).to.be.null;
-        expect(album.title).to.be.null;
+            // Use validateAlbums helper to validate the albums container and each album
+            validateAlbums(data.user.albums);
 
-        expect(album.user).to.be.an('object');
-        expect(album.user.id).to.be.null;
-        expect(album.user.name).to.be.null;
+            // Additional explicit checks for the first album's fields
+            const album = albums[0];
+            expect(album.id, 'Album id').to.be.a('string').and.not.be.empty;
+            expect(album.title, 'Album title').to.be.a('string').and.not.be.empty;
+
+            cy.log('Albums for user:', albums);
+        });
+    });
 
 
-        //console.log('Album with invalid ID:', album);
-        cy.log('Album with invalid ID:', album);
-      });
+
+    it('Album by valid ID', () => {
+        const query = `
+    query {
+      album(id: 1) {
+        id
+        title
+        user {
+          id
+          name
+          username
+        }
+      }
+    }
+  `;
+
+        cy.graphql(query).then((data) => {
+            const album = data.album;
+
+            expect(album, 'Album object').to.be.an('object');
+            expect(album).to.have.property('id', '1');
+            expect(album).to.have.property('title').that.is.a('string').and.not.empty;
+
+            // Use your helper to validate album user object
+            if (album.user) {
+                expect(album.user).to.have.property('id').that.is.a('string').and.not.empty;
+                expect(album.user).to.have.property('name').that.is.a('string').and.not.empty;
+                expect(album.user).to.have.property('username').that.is.a('string').and.not.empty;
+            }
+
+            cy.log('Album:', album);
+        });
+    });
+
+
+    it('Album by invalid ID', () => {
+        const query = `
+    query {
+      album(id: 999999) {
+        id
+        title
+        user {
+          id
+          name
+        }
+      }
+    }
+  `;
+
+        cy.graphql(query).then((data) => {
+            const album = data.album;
+
+            expect(album, 'Album object presence').to.be.an('object');
+
+            // Check that album's fields are null as expected for invalid ID
+            expect(album.id, 'Album id should be null').to.be.null;
+            expect(album.title, 'Album title should be null').to.be.null;
+
+            // User object exists but all fields null
+            expect(album.user, 'Album user object').to.be.an('object');
+            expect(album.user.id, 'Album user id should be null').to.be.null;
+            expect(album.user.name, 'Album user name should be null').to.be.null;
+
+            cy.log('Album with invalid ID:', album);
+        });
     });
 
 
     it('Albums with nested user data', () => {
-      const query = `
-        query {
-          albums {
-            data {
-              id
-              title
-              user {
-                id
-                name
-              }
-            }
+        const query = `
+    query {
+      albums {
+        data {
+          id
+          title
+          user {
+            id
+            name
           }
         }
-      `;
+      }
+    }
+  `;
 
-      cy.request({
-        method: 'POST',
-        url: 'https://graphqlzero.almansi.me/api',
-        headers: { 'Content-Type': 'application/json' },
-        body: { query },
-      }).then((response) => {
-        expect(response.status).to.eq(200);
+        cy.graphql(query).then((data) => {
+            const albums = data.albums.data;
 
-        const albums = response.body.data.albums.data;
-        expect(albums.length).to.be.greaterThan(0);
+            expect(albums, 'Albums array').to.be.an('array').and.have.length.greaterThan(0);
 
-        const album = albums[0];
-        expect(album).to.have.property('id');
-        expect(album).to.have.property('title');
-        expect(album.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.title).to.be.a('string').and.to.not.be.empty;
+            // Use your existing helper to validate the albums container and all contained albums
+            validateAlbums(data.albums);
 
-        expect(album.user).to.have.property('id');
-        expect(album.user).to.have.property('name');
-        expect(album.user.id).to.be.a('string').and.to.not.be.empty;
-        expect(album.user.name).to.be.a('string').and.to.not.be.empty;
+            // Additionally, validate the first album’s user fields explicitly
+            const album = albums[0];
+            expect(album.user).to.have.property('id').that.is.a('string').and.not.empty;
+            expect(album.user).to.have.property('name').that.is.a('string').and.not.empty;
 
-
-        //console.log('Albums with nested user data:', albums);
-        cy.log('Albums with nested user data:', albums);
-      });
+            cy.log('Albums with nested user data:', albums);
+        });
     });
 
-  });
+});

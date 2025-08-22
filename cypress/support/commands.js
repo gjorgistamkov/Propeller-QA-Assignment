@@ -24,14 +24,45 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('graphql', (query) => {
-  return cy.request({
-    method: 'POST',
-    url: 'https://graphqlzero.almansi.me/api',
-    headers: { 'Content-Type': 'application/json' },
-    body: { query },
-  }).then((response) => {
-    expect(response.status).to.eq(200);
-    return response.body.data;
-  });
+function getApiUrl() {
+    return Cypress.env('apiUrl') || 'https://graphqlzero.almansi.me/api'; // fallback default
+}
+
+Cypress.Commands.add('graphql', (query, variables = {}, options = {}) => {
+    const apiUrl = getApiUrl();
+    const { failOnStatusCode = false, returnFullResponse = false } = options;
+
+    return cy.request({
+        method: 'POST',
+        url: apiUrl,
+        headers: { 'Content-Type': 'application/json' },
+        body: { query, variables },
+        failOnStatusCode,
+    }).then((response) => {
+        if (returnFullResponse) {
+            return response; // Full response for status code, errors, headers inspection
+        }
+
+        return response.body.data; // Default: only data for concise tests
+    });
 });
+
+/*
+
+Cypress.Commands.add('graphql', (query, variables = {}) => {
+    const apiUrl = getApiUrl();
+
+    return cy.request({
+        method: 'POST',
+        url: apiUrl,
+        headers: { 'Content-Type': 'application/json' },
+        body: {
+            query,
+            variables,
+        },
+    }).then((response) => {
+
+        return response.body.data;
+    });
+});
+*/
