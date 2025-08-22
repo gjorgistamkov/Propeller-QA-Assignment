@@ -15,7 +15,6 @@ describe('Albums Errors', () => {
 
             const album = response.body.data.updateAlbum;
 
-            // The API returns an object with null id/title when album does not exist
             expect(album, 'Updated album object').to.be.an('object');
             expect(album.id, 'Album id should be null').to.be.null;
             expect(album.title, 'Album title should be null').to.be.string("Non Existent Album");
@@ -48,7 +47,6 @@ describe('Albums Errors', () => {
 
             expect(users, 'Users array').to.be.an('array').and.not.empty;
 
-            // For each user, validate albums data fields presence and type
             users.forEach((user, userIndex) => {
                 expect(user.albums.data, `User ${userIndex} albums`).to.be.an('array');
 

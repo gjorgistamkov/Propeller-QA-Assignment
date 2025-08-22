@@ -25,7 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 function getApiUrl() {
-    return Cypress.env('apiUrl') || 'https://graphqlzero.almansi.me/api'; // fallback default
+    return Cypress.env('apiUrl') || 'https://graphqlzero.almansi.me/api';
 }
 
 Cypress.Commands.add('graphql', (query, variables = {}, options = {}) => {
@@ -40,29 +40,9 @@ Cypress.Commands.add('graphql', (query, variables = {}, options = {}) => {
         failOnStatusCode,
     }).then((response) => {
         if (returnFullResponse) {
-            return response; // Full response for status code, errors, headers inspection
+            return response; 
         }
 
-        return response.body.data; // Default: only data for concise tests
+        return response.body.data; 
     });
 });
-
-/*
-
-Cypress.Commands.add('graphql', (query, variables = {}) => {
-    const apiUrl = getApiUrl();
-
-    return cy.request({
-        method: 'POST',
-        url: apiUrl,
-        headers: { 'Content-Type': 'application/json' },
-        body: {
-            query,
-            variables,
-        },
-    }).then((response) => {
-
-        return response.body.data;
-    });
-});
-*/

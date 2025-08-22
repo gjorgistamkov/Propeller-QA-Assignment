@@ -170,6 +170,7 @@ describe('Users Queries', () => {
                 .that.is.an('array');
 
             validateAlbums(user.albums);
+            
 
             cy.log('User with nested albums:', JSON.stringify(user, null, 2));
         });

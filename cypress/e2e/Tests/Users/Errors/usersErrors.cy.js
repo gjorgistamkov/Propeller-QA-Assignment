@@ -51,7 +51,7 @@ describe('Users Errors', () => {
         data {
           id
           name
-  `; // Intentionally missing closing braces to cause syntax error
+  `; // missing closing braces 
 
         cy.graphql(query, {}, { failOnStatusCode: false, returnFullResponse: true }).then((response) => {
             expect(response.status).to.eq(400);

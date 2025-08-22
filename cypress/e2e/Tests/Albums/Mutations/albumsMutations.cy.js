@@ -21,7 +21,6 @@ describe('Albums Mutations', () => {
             expect(album).to.have.property('id').that.is.a('string').and.not.empty;
             expect(album).to.have.property('title', 'New Album');
 
-            // Validate nested user object
             expect(album.user, 'Album user object').to.be.an('object');
             expect(album.user).to.have.property('id', '1');
             expect(album.user.id, 'User id').to.be.a('string').and.not.empty;
@@ -54,6 +53,7 @@ describe('Albums Mutations', () => {
             cy.log('Updated album:', album);
         });
     });
+
 
     it('Delete an album', () => {
         const query = `
