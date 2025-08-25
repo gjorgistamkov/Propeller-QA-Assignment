@@ -180,7 +180,7 @@ describe('Albums Errors', () => {
     }
   `;
 
-        const validTitleRegex = /^[\w\s\-.,!'":;?()&]+$/; // Adjust based on allowed characters
+        const validTitleRegex = /^[\w\s\-.,!'":;?()&]+$/; 
 
         cy.graphql(query).then((data) => {
             const users = data.users.data;

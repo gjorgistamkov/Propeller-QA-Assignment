@@ -36,3 +36,82 @@ export const validateAlbums = (albums) => {
 
   albums.data.forEach(validateAlbum);
 };
+
+
+
+export function createUser({ name, email, username }) {
+  const mutation = `
+    mutation {
+      createUser(input: { name: "${name}", email: "${email}", username: "${username}" }) {
+        id
+        name
+        email
+        username
+      }
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.createUser);
+}
+
+export function updateUser(id, { name, email, username }) {
+  const mutation = `
+    mutation {
+      updateUser(id: ${id}, input: { name: "${name}", email: "${email}", username: "${username}" }) {
+        id
+        name
+        email
+        username
+      }
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.updateUser);
+}
+
+export function deleteUser(id) {
+  const mutation = `
+    mutation {
+      deleteUser(id: ${id})
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.deleteUser);
+}
+
+
+
+
+export function createAlbum({ title, userId }) {
+  const mutation = `
+    mutation {
+      createAlbum(input: { title: "${title}", userId: ${userId} }) {
+        id
+        title
+        user {
+          id
+          name
+        }
+      }
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.createAlbum);
+}
+
+export function updateAlbum(id, { title }) {
+  const mutation = `
+    mutation {
+      updateAlbum(id: ${id}, input: { title: "${title}" }) {
+        id
+        title
+      }
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.updateAlbum);
+}
+
+export function deleteAlbum(id) {
+  const mutation = `
+    mutation {
+      deleteAlbum(id: ${id})
+    }
+  `;
+  return cy.graphql(mutation).then((data) => data.deleteAlbum);
+}
