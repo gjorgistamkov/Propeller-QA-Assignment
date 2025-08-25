@@ -48,11 +48,13 @@ describe('User Mutations', () => {
 
 
   it('Delete user', () => {
-    const USER_ID_TO_DELETE = '3'; // ID of user to delete
+    const USER_ID_TO_DELETE = '3'; 
 
     deleteUser(USER_ID_TO_DELETE).then(result => {
       expect(result).to.equal(true);
-      cy.log(`Delete mutation returned true for user ID ${USER_ID_TO_DELETE}`);
+      cy.log(`Deleted user with ID ${USER_ID_TO_DELETE}`);
+
+// Deletion check
 /*
       cy.graphql(`
     query {
@@ -72,7 +74,7 @@ describe('User Mutations', () => {
       });
 */
     });
-  
+    
 
   });
 });

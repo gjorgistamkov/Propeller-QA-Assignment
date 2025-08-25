@@ -46,3 +46,6 @@ Cypress.Commands.add('graphql', (query, variables = {}, options = {}) => {
         return response.body.data; 
     });
 });
+
+
+

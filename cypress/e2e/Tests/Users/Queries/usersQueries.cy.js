@@ -9,7 +9,7 @@ describe('Users Queries', () => {
           data {
             id
             name
-            email
+            email  
             username
           }
         }
@@ -201,7 +201,7 @@ describe('Users Queries', () => {
 
             expect(users, 'Users array').to.be.an('array').and.have.length.greaterThan(0);
 
-            // Find any user whose albums array is empty
+    
             const userWithoutAlbums = users.find((u) => u.albums?.data && u.albums.data.length === 0);
 
             if (userWithoutAlbums) {
@@ -245,18 +245,16 @@ describe('Users Queries', () => {
         cy.graphql(query).then((data) => {
             const users = data.users.data;
 
-            // Validate all users
+          
             users.forEach(user => {
                 validateUser(user);
 
-                // Validate albums container presence and structure
                 expect(user, 'User albums property').to.have.property('albums').that.is.an('object');
                 expect(user.albums, 'Albums data array').to.have.property('data').that.is.an('array');
 
-                // Validate each album in user's albums
+
                 validateAlbums(user.albums);
 
-                // Assert no user has empty albums array if you want strict "no empty" check:
                 expect(user.albums.data.length, 'Albums array should not be empty').to.be.greaterThan(0);
             });
 
